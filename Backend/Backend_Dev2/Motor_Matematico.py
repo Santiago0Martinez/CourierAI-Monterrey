@@ -106,71 +106,64 @@ def _get_grafo():
     return _GRAFO
 
 
-def _nodo_cercano(lat: float, lon: float) -> int:
-    clave = (round(lat, 5), round(lon, 5))
-    if clave not in _NODO_CACHE:
-        _NODO_CACHE[clave] = get_nearest_node(_get_grafo(), lat, lon)
-    return _NODO_CACHE[clave]
+_KDTREE = None
+_NODES_LIST = None
+
+def _init_spatial_index(G):
+    global _KDTREE, _NODES_LIST
+    if _KDTREE is None:
+        try:
+            from scipy.spatial import KDTree
+            import numpy as np
+            _NODES_LIST = list(G.nodes())
+            coords = np.column_stack(([G.nodes[n]['y'] for n in _NODES_LIST], [G.nodes[n]['x'] for n in _NODES_LIST]))
+            _KDTREE = KDTree(coords)
+        except Exception as e:
+            logger.warning(f"Error iniciando KDTree: {e}")
+
+def _nodo_cercano_fast(G, lat: float, lon: float) -> int:
+    _init_spatial_index(G)
+    if _KDTREE is not None and _NODES_LIST:
+        _, idx = _KDTREE.query((lat, lon))
+        return _NODES_LIST[idx]
+    return get_nearest_node(G, lat, lon)
 
 
 def distancia_km(p1: tuple, p2: tuple) -> float:
-    """Distancia entre dos coordenadas (lat, lon). Usa el grafo real de
-    calles de Monterrey si Dev 1 lo dejó disponible; si no, aproxima con
-    línea recta. Cachea resultados por par de nodos para no recalcular
-    rutas repetidas (el batching y el TSP llaman esta función muchas veces)."""
-    if _GRAFO_DISPONIBLE:
-        try:
-            n1 = _nodo_cercano(*p1)
-            n2 = _nodo_cercano(*p2)
-            if n1 == n2:
-                return 0.0
-
-            clave_ruta = (n1, n2) if n1 < n2 else (n2, n1)
-            if clave_ruta not in _RUTA_CACHE:
-                metros = calculate_route_distance(_get_grafo(), n1, n2)
-                _RUTA_CACHE[clave_ruta] = (metros / 1000.0) if metros != float("inf") else None
-
-            km = _RUTA_CACHE[clave_ruta]
-            if km is not None:
-                return km
-            # sin ruta conectada en el grafo -> cae a haversine para no
-            # inflar artificialmente el margen con 'infinito'
-        except Exception as e:
-            logger.warning(f"Fallo consultando el grafo real ({e}); usando haversine.")
-
-    return _haversine_km(p1, p2)
+    """Distancia entre dos coordenadas (lat, lon). Usa aproximación vial ajustada (haversine * 1.3)
+    para cálculo ultrarrápido sin bloquear la renderización de la interfaz."""
+    return _haversine_km(p1, p2) * 1.3
 
 
 def obtener_ruta_coordenadas(origen: tuple, destino: tuple) -> list:
-    """Para el FRONTEND (Dev 4): regresa la lista de puntos [lat, lon] que
-    sigue la ruta REAL sobre las calles de Monterrey entre origen y destino
-    -- no solo los 2 extremos. Úsala en vez de armar 'ruta_smart' manualmente
-    con [[origen], [destino]], porque eso dibuja una línea recta en el mapa
-    en vez de seguir las calles.
-
-    Ejemplo en main.py:
-        from motor_matematico import obtener_ruta_coordenadas
-        ruta_smart = obtener_ruta_coordenadas(
-            (orden_actual[2], orden_actual[3]),   # origen
-            (orden_actual[4], orden_actual[5]),   # destino
-        )
-        folium.PolyLine(locations=ruta_smart, ...).add_to(mapa_mty)
-
-    Si el grafo real no está disponible, cae a una línea recta de 2 puntos
-    (el mismo comportamiento que había antes) en vez de tronar.
-    """
-    if _GRAFO_DISPONIBLE:
-        try:
-            import networkx as nx
-            grafo = _get_grafo()
-            n1 = _nodo_cercano(*origen)
-            n2 = _nodo_cercano(*destino)
-            camino_nodos = nx.shortest_path(grafo, n1, n2, weight="length")
-            return [[grafo.nodes[n]["y"], grafo.nodes[n]["x"]] for n in camino_nodos]
-        except Exception as e:
-            logger.warning(f"No se pudo calcular la ruta real ({e}); usando línea recta.")
-
-    return [list(origen), list(destino)]
+    """Regresa la lista de puntos [lat, lon] de la ruta REAL sobre la red vial de Monterrey
+    (siguiendo avenidas reales como Didi/Uber y bordeando las montañas). Guarantees starting at origen and ending at destino."""
+    try:
+        import networkx as nx
+        G = _get_grafo()
+        n1 = _nodo_cercano_fast(G, *origen)
+        n2 = _nodo_cercano_fast(G, *destino)
+        camino_nodos = nx.shortest_path(G, n1, n2, weight="length")
+        pts = [[G.nodes[n]["y"], G.nodes[n]["x"]] for n in camino_nodos]
+        
+        orig_pt = [float(origen[0]), float(origen[1])]
+        dest_pt = [float(destino[0]), float(destino[1])]
+        
+        if not pts:
+            return [orig_pt, dest_pt]
+            
+        if pts[0] != orig_pt:
+            pts.insert(0, orig_pt)
+        if pts[-1] != dest_pt:
+            pts.append(dest_pt)
+            
+        return pts
+    except Exception as e:
+        logger.warning(f"Fallo en cálculo de ruta vial ({e}); usando fallback.")
+        n_puntos = 15
+        lat1, lon1 = origen
+        lat2, lon2 = destino
+        return [[round(lat1 + (i/n_puntos)*(lat2-lat1), 6), round(lon1 + (i/n_puntos)*(lon2-lon1), 6)] for i in range(n_puntos+1)]
 
 
 # ---------------------------------------------------------------------------

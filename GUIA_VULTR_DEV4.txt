@@ -1,0 +1,136 @@
+================================================================================
+  GUÍA DEFINITIVA DE DESPLIEGUE EN VULTR PARA DEV 4 (DESDE WINDOWS 11)
+  PROYECTO COURIERAI — HACKMTY 2026 (RETO INFOSYS)
+================================================================================
+
+💡 EXPLICACIÓN RÁPIDA (PARA ENTENDER EL "SUDO" EN WINDOWS):
+--------------------------------------------------------------------------------
+Tu laptop personal tiene Windows 11 y NO necesitas instalar Linux en ella.
+Vultr es una computadora remota en la nube que sí corre Linux (Ubuntu). 
+Lo que harás desde tu Windows 11 es "controlarla a distancia" mediante SSH.
+Cuando te conectas por SSH, tu terminal de Windows se convierte en la pantalla
+de la máquina Ubuntu de Vultr, y por eso ahí ADENTRO sí se usan los comandos
+"sudo" y "apt".
+
+================================================================================
+PASO 0: QUÉ DATOS NECESITAS DE TU PANEL DE VULTR
+================================================================================
+Entra a tu cuenta en https://my.vultr.com/ y entra a tu servidor (Cloud Compute).
+Anota estos 2 datos que aparecen en la pantalla de Vultr:
+1. IP del Servidor (ejemplo: 207.246.120.45)
+2. Password del usuario "root" (Vultr te da un botón de 'Copy Password' o un ojito)
+
+================================================================================
+PASO 1: CONECTARTE AL SERVIDOR DESDE WINDOWS 11
+================================================================================
+1. En tu laptop Windows 11, presiona la tecla Windows, escribe "PowerShell" y ábrelo.
+2. Escribe el siguiente comando (sustituye por la IP real de tu servidor Vultr):
+
+   ssh root@TU_IP_DE_VULTR
+
+   Ejemplo:
+   ssh root@207.246.120.45
+
+3. Si te aparece una pregunta como: 
+   "Are you sure you want to continue connecting (yes/no/[fingerprint])?"
+   Escribe: yes  (y presiona ENTER).
+
+4. Te pedirá: "root@... password:"
+   - Copia la contraseña desde Vultr.
+   - En PowerShell, haz CLIC DERECHO para pegarla (OJO: por seguridad en Linux 
+     NO se ven asteriscos ni letras al pegar la contraseña, parece que no escribe, 
+     pero sí se pega).
+   - Presiona ENTER.
+
+¡Listo! Ya verás en tu terminal algo como: "root@vultr:~#"
+Ahora todo lo que escribas se ejecutará dentro de Ubuntu.
+
+================================================================================
+PASO 2: INSTALAR PYTHON Y GIT EN EL SERVIDOR
+================================================================================
+Copia y pega este comando en la terminal conectada a Vultr y dale ENTER:
+
+sudo apt update && sudo apt install -y python3-pip python3-venv git
+
+(Esperar unos 30-40 segundos a que termine de descargar).
+
+================================================================================
+PASO 3: CLONAR EL REPOSITORIO DE GITHUB
+================================================================================
+Ejecuta estos 3 comandos uno por uno:
+
+git clone https://github.com/Ariel-Hdz-Gar/HackMTY-Infosys-2026-Project--Gig-Economy-Courier-agent-Monterrey-.git
+
+cd HackMTY-Infosys-2026-Project--Gig-Economy-Courier-agent-Monterrey-
+
+git checkout Dev1
+
+================================================================================
+PASO 4: CREAR EL ENTORNO VIRTUAL E INSTALAR DEPENDENCIAS
+================================================================================
+Ejecuta estos comandos en orden:
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install -r Backend/Backend_Dev1/requirements.txt
+
+pip install streamlit
+
+================================================================================
+PASO 5: CONFIGURAR LA BASE DE DATOS (TIGER DATA)
+================================================================================
+1. Abre el editor de texto en el servidor ejecutando:
+
+nano .env
+
+2. Pega exactamente este contenido (clic derecho en PowerShell para pegar):
+
+DATABASE_URL=postgres://tsdbadmin:q33z9gicarant7kc@tsfgwbki2d.w84nx9piyi.tsdb.cloud.timescale.com:39869/tsdb?sslmode=require
+
+3. Para guardar y salir de nano:
+   - Presiona: Ctrl + O
+   - Presiona: ENTER
+   - Presiona: Ctrl + X
+
+================================================================================
+PASO 6: ABRIR EL PUERTO EN EL FIREWALL DE UBUNTU
+================================================================================
+Para permitir que cualquier persona en internet pueda ver el dashboard:
+
+sudo ufw allow 8501/tcp
+sudo ufw allow 22/tcp
+sudo ufw --force enable
+
+================================================================================
+PASO 7: LANZAR LA APLICACIÓN DE STREAMLIT
+================================================================================
+
+OPCIÓN A: Modo prueba (para ver logs en pantalla):
+--------------------------------------------------
+streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
+
+OPCIÓN B: Modo Producción 24/7 (se mantiene viva aunque cierres tu laptop):
+--------------------------------------------------
+nohup streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0 > streamlit.log 2>&1 &
+
+================================================================================
+PASO 8: CÓMO VER TU APP EN VIVO EN EL NAVEGADOR
+================================================================================
+Abre cualquier navegador (Brave, Chrome, Safari en celular de jueces) y entra a:
+
+http://TU_IP_DE_VULTR:8501
+
+Ejemplo: http://207.246.120.45:8501
+
+================================================================================
+💡 COMANDOS ÚTILES DE RESCATE EN VULTR:
+================================================================================
+- Si actualizan código en GitHub:
+    git pull origin Dev1
+- Si quieres ver los logs de Streamlit en vivo:
+    tail -f streamlit.log
+- Si quieres apagar la app en segundo plano:
+    pkill -f streamlit
+================================================================================
