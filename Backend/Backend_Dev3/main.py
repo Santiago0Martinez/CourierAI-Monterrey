@@ -20,10 +20,23 @@ def home():
 
 @app.post("/evaluar-rutas", response_model=RespuestaMediacion)
 async def evaluar_rutas(solicitud: SolicitudMediacion):
-    # Procesa la solicitud usando Gemini
     veredicto_texto = mediador.evaluar_y_decidir(solicitud)
-    
+
+    # Extrae el agente ganador de lo que Gemini realmente dijo
+    texto_lower = veredicto_texto.lower()
+    if "opción 1" in texto_lower or "opcion 1" in texto_lower:
+        agente_ganador = solicitud.opcion_baseline.agente
+    elif "opción 2" in texto_lower or "opcion 2" in texto_lower:
+        agente_ganador = solicitud.opcion_smart.agente
+    else:
+        # Respaldo por métricas si no se detecta el patrón explícito
+        agente_ganador = (
+            solicitud.opcion_smart.agente
+            if solicitud.opcion_smart.ganancia_neta_mxn >= solicitud.opcion_baseline.ganancia_neta_mxn
+            else solicitud.opcion_baseline.agente
+        )
+
     return RespuestaMediacion(
-        agente_ganador=solicitud.opcion_smart.agente,
-        explicacion_gemini=veredicto_texto
+        agente_ganador=agente_ganador,
+        explicacion_gemini=veredicto_texto,
     )
