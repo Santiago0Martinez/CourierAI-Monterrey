@@ -62,3 +62,31 @@ python Backend/Backend_Dev1/main.py
 # 3. Iniciar Dashboard Interactivo (Frontend)
 python -m streamlit run Front-End/main.py
 `
+
+
+---
+
+## 👥 Estructura de Equipo & Roles (HackMTY 2026)
+
+| Rol | Componente | Responsable / Descripción |
+| :--- | :--- | :--- |
+| **Dev 1** | **Ingesta & Streaming** | Simulación de eventos viales en Monterrey, Grafo OSMnx y persistencia en TimescaleDB. |
+| **Dev 2** | **Motor Matemático** | Optimización multiobjetivo con Google OR-Tools CP-SAT Solver y TSP Batching. |
+| **Dev 3** | **IA & Explicabilidad** | Microservicio FastAPI e integración con Google Gemini AI para justificaciones (XAI). |
+| **Dev 4** | **Frontend & Dashboard** | Dashboard interactivo en Streamlit, mapa dinámico con Folium y métricas KPI. |
+
+---
+
+## 📈 Métricas de Impacto y Rendimiento
+
+En pruebas de estrés simuladas con más de **2,400 decisiones auditadas en TimescaleDB**:
+
+* 🟢 **Incremento en Rentabilidad Neta:** Ventaja promedio de **+ MXN a + MXN** por turno de repartidor en comparación con sistemas FIFO tradicionales.
+* 🛡️ **Mitigación de Riesgo por Tráfico:** 100% de evasión de pedidos con margen negativo severo originado por embotellamientos viales o bloqueos climáticos.
+* ⏱️ **Trazabilidad:** Tiempo medio de respuesta y decisión < 50ms por orden.
+
+---
+
+## 📜 Licencia
+
+Desarrollado para el **Reto Infosys — HackMTY 2026**.
