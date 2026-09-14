@@ -277,87 +277,46 @@ G = obtener_grafo()
 # Sidebar: Panel de Control e Interactividad
 
 
+
 # ==========================================
-# MODULO DE AUTENTICACION DE REPARTIDOR (DRIVER APP - GLASSMORPHISM UI)
+# MODULO DE AUTENTICACION DE REPARTIDOR (DRIVER APP - VIVID NEON GLASS)
 # ==========================================
 if "usuario_autenticado" not in st.session_state:
     st.session_state["usuario_autenticado"] = None
 
 if not st.session_state["usuario_autenticado"]:
+    # Banner con Motoneta Animada cruzando la pantalla
     st.markdown("""
-    <div style='text-align: center; margin-top: 50px; margin-bottom: 30px;'>
-        <div style='display: inline-block; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 8px 18px; border-radius: 30px; margin-bottom: 15px;'>
-            <span style='color: #818CF8; font-weight: 700; font-size: 0.9rem; letter-spacing: 1px;'>RETO INFOSYS — HACKMTY 2026</span>
+    <div class='scooter-banner'>
+        <div class='scooter-anim'>🛵💨💨💨</div>
+    </div>
+    <div style='text-align: center; margin-bottom: 25px;'>
+        <div style='display: inline-block; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%); border: 1px solid rgba(99, 102, 241, 0.5); padding: 8px 20px; border-radius: 30px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);'>
+            <span style='color: #A5B4FC; font-weight: 800; font-size: 0.95rem; letter-spacing: 1.5px;'>RETO INFOSYS — HACKMTY 2026</span>
         </div>
-        <h1 style='background: linear-gradient(135deg, #FFFFFF 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.2rem; font-weight: 800; margin: 0;'>🛵 CourierAI Driver App</h1>
-        <p style='font-size: 1.15rem; color: #94A3B8; margin-top: 10px; font-weight: 400;'>Plataforma Inteligente de Evaluación de Ofertas y Ruteo en Tiempo Real</p>
+        <h1 style='background: linear-gradient(135deg, #FFFFFF 0%, #818CF8 50%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.5rem; font-weight: 900; margin: 0; filter: drop-shadow(0 4px 15px rgba(99, 102, 241, 0.4));'>🛵 CourierAI Driver App</h1>
+        <p style='font-size: 1.25rem; color: #CBD5E1; margin-top: 8px; font-weight: 500;'>Plataforma Inteligente de Evaluación de Ofertas y Ruteo en Tiempo Real</p>
     </div>
     """, unsafe_allow_html=True)
     
-    col_l1, col_l2, col_l3 = st.columns([1, 2.2, 1])
+    col_l1, col_l2, col_l3 = st.columns([1, 2.4, 1])
     with col_l2:
         st.markdown("""
-        <style>
-            .login-card-container {
-                background: rgba(15, 23, 42, 0.75);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 24px;
-                padding: 35px;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.15);
-            }
-        
-    /* ANIMACIONES CSS FUTURISTAS 2026 */
-    @keyframes motito-drive {
-        0% { transform: translateX(-100px); opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { transform: translateX(calc(100vw - 150px)); opacity: 0; }
-    }
-
-    @keyframes pulse-glow {
-        0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
-        50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.9); transform: scale(1.05); }
-        100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
-    }
-
-    @keyframes border-beam {
-        0% { border-color: rgba(99, 102, 241, 0.3); }
-        50% { border-color: rgba(56, 189, 248, 0.8); }
-        100% { border-color: rgba(99, 102, 241, 0.3); }
-    }
-
-    .scooter-banner {
-        position: relative;
-        width: 100%;
-        height: 40px;
-        overflow: hidden;
-        margin-bottom: 15px;
-    }
-
-    .scooter-anim {
-        position: absolute;
-        font-size: 2rem;
-        animation: motito-drive 8s linear infinite;
-    }
-
-    .pulse-badge {
-        animation: pulse-glow 2s infinite;
-    }
-
-</style>
+        <div style='background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.85) 100%); backdrop-filter: blur(20px); border: 2px solid rgba(99, 102, 241, 0.4); border-radius: 28px; padding: 35px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.25);'>
+            <div style='text-align: center; font-size: 1.6rem; font-weight: 800; color: #F8FAFC; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;'>
+                🔐 Acceso Seguro al Sistema
+            </div>
         """, unsafe_allow_html=True)
         
         tab_log, tab_reg = st.tabs(["🔐 Acceso Repartidor", "📝 Registrar Nuevo Conductor"])
         
         with tab_log:
-            st.markdown("<h3 style='color:#F8FAFC; margin-top:15px; margin-bottom:20px; font-size:1.4rem;'>Acceso a la Plataforma</h3>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#F8FAFC; margin-top:15px; margin-bottom:15px; font-weight:700;'>Credenciales de Conductor</h4>", unsafe_allow_html=True)
             email_input = st.text_input("Correo Electrónico", value="driver@courierai.com", key="log_email")
             pass_input = st.text_input("Contraseña", value="demo123", type="password", key="log_pass")
             st.markdown("<br>", unsafe_allow_html=True)
             
-            if st.button("🚀 Iniciar Sesión como Repartidor", use_container_width=True, type="primary"):
+            if st.button("⚡ INICIAR SESIÓN COMO REPARTIDOR", use_container_width=True, type="primary"):
                 perfil = validar_credenciales(email_input, pass_input)
                 if perfil:
                     st.session_state["usuario_autenticado"] = perfil
@@ -367,14 +326,14 @@ if not st.session_state["usuario_autenticado"]:
                     st.error("Credenciales inválidas. Verifica tu correo y contraseña.")
                     
         with tab_reg:
-            st.markdown("<h3 style='color:#F8FAFC; margin-top:15px; margin-bottom:20px; font-size:1.4rem;'>Registro de Nuevo Conductor</h3>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#F8FAFC; margin-top:15px; margin-bottom:15px; font-weight:700;'>Nuevo Conductor</h4>", unsafe_allow_html=True)
             r_nombre = st.text_input("Nombre Completo", key="reg_nombre")
             r_email = st.text_input("Correo Electrónico Nuevo", key="reg_email")
             r_pass = st.text_input("Contraseña Nueva", type="password", key="reg_pass")
             r_vehiculo = st.selectbox("Tipo de Vehículo", ["Moto", "Bici Eléctrica", "Auto"], key="reg_veh")
             st.markdown("<br>", unsafe_allow_html=True)
             
-            if st.button("✨ Crear Cuenta de Repartidor", use_container_width=True):
+            if st.button("✨ CREAR CUENTA DE REPARTIDOR", use_container_width=True):
                 if r_nombre and r_email and r_pass:
                     if registrar_nuevo_repartidor(r_nombre, r_email, r_pass, r_vehiculo):
                         st.success("¡Cuenta registrada con éxito! Ya puedes iniciar sesión.")
@@ -383,7 +342,9 @@ if not st.session_state["usuario_autenticado"]:
                 else:
                     st.warning("Completa todos los campos obligatorios.")
                     
+        st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
+
 
 
 
