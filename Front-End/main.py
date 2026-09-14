@@ -609,20 +609,25 @@ veredicto_gemini = st.session_state.get(
 # 3. INTERFAZ VISUAL PRINCIPAL
 # ==========================================
 st.markdown("""
-<div class='brand-container'>
-    <span style='color: #818CF8; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;'>RETO INFOSYS — HACKMTY 2026</span>
-    <h1 class='main-header'>CourierAI</h1>
-    <p class='sub-header'>Agente Inteligente de Optimización de Entregas y Decisión Multiobjetivo en Monterrey</p>
+<div class='scooter-banner'>
+    <div class='scooter-anim'>🛵💨💨💨</div>
+</div>
+<div style='text-align: center; margin-top: 5px; margin-bottom: 25px;'>
+    <div style='display: inline-block; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%); border: 1px solid rgba(99, 102, 241, 0.5); padding: 6px 18px; border-radius: 25px; margin-bottom: 10px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);'>
+        <span style='color: #A5B4FC; font-weight: 800; font-size: 0.85rem; letter-spacing: 1.5px;'>RETO INFOSYS — HACKMTY 2026</span>
+    </div>
+    <h1 style='background: linear-gradient(135deg, #FFFFFF 0%, #818CF8 50%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.5rem; font-weight: 900; margin: 0; filter: drop-shadow(0 4px 15px rgba(99, 102, 241, 0.4));'>CourierAI</h1>
+    <p style='font-size: 1.25rem; color: #CBD5E1; margin-top: 6px; font-weight: 500;'>Agente Inteligente de Optimización de Entregas y Decisión Multiobjetivo en Monterrey</p>
 </div>
 """, unsafe_allow_html=True)
 
 # Badges de Estado del Sistema
 st.markdown("""
 <div class='status-bar'>
-    <span class='status-pill'><span class='dot-green'></span> <b>TimescaleDB</b>: Conectada</span>
-    <span class='status-pill'><span class='dot-green'></span> <b>FastAPI Gemini</b>: Online</span>
-    <span class='status-pill'><span class='dot-green'></span> <b>OR-Tools Engine</b>: Optimización Activa</span>
-    <span class='status-pill'><span class='dot-blue'></span> <b>Streaming Pedidos</b>: Dev 1 Activo</span>
+    <span class='status-pill pulse-badge'><span class='dot-green'></span> <b>TimescaleDB</b>: Conectada</span>
+    <span class='status-pill pulse-badge'><span class='dot-green'></span> <b>FastAPI Gemini</b>: Online</span>
+    <span class='status-pill pulse-badge'><span class='dot-green'></span> <b>OR-Tools Engine</b>: Optimización Activa</span>
+    <span class='status-pill pulse-badge'><span class='dot-blue'></span> <b>Streaming Pedidos</b>: Dev 1 Activo</span>
 </div>
 """, unsafe_allow_html=True)
 
