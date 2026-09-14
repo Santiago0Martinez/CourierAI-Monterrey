@@ -234,31 +234,49 @@ G = obtener_grafo()
 
 # Sidebar: Panel de Control e Interactividad
 
+
 # ==========================================
-# MODULO DE AUTENTICACION DE REPARTIDOR (DRIVER APP)
+# MODULO DE AUTENTICACION DE REPARTIDOR (DRIVER APP - GLASSMORPHISM UI)
 # ==========================================
 if "usuario_autenticado" not in st.session_state:
     st.session_state["usuario_autenticado"] = None
 
 if not st.session_state["usuario_autenticado"]:
     st.markdown("""
-    <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
-        <h1 style='color: #6366F1; font-size: 2.8rem; font-weight: 800;'>🛵 CourierAI Driver App</h1>
-        <p style='font-size: 1.2rem; color: #94A3B8;'>Plataforma Inteligente de Evaluación de Ofertas para Repartidores</p>
+    <div style='text-align: center; margin-top: 50px; margin-bottom: 30px;'>
+        <div style='display: inline-block; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 8px 18px; border-radius: 30px; margin-bottom: 15px;'>
+            <span style='color: #818CF8; font-weight: 700; font-size: 0.9rem; letter-spacing: 1px;'>RETO INFOSYS — HACKMTY 2026</span>
+        </div>
+        <h1 style='background: linear-gradient(135deg, #FFFFFF 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.2rem; font-weight: 800; margin: 0;'>🛵 CourierAI Driver App</h1>
+        <p style='font-size: 1.15rem; color: #94A3B8; margin-top: 10px; font-weight: 400;'>Plataforma Inteligente de Evaluación de Ofertas y Ruteo en Tiempo Real</p>
     </div>
     """, unsafe_allow_html=True)
     
-    col_login_space, col_login_box, col_login_space2 = st.columns([1, 2, 1])
-    with col_login_box:
-        st.markdown("<div style='background-color: #0F172A; padding: 30px; border-radius: 18px; border: 1px solid #1E293B; box-shadow: 0 20px 40px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
-        tab_log, tab_reg = st.tabs(["🔐 Iniciar Sesión", "📝 Registrar Repartidor"])
+    col_l1, col_l2, col_l3 = st.columns([1, 2.2, 1])
+    with col_l2:
+        st.markdown("""
+        <style>
+            .login-card-container {
+                background: rgba(15, 23, 42, 0.75);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                padding: 35px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.15);
+            }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        tab_log, tab_reg = st.tabs(["🔐 Acceso Repartidor", "📝 Registrar Nuevo Conductor"])
         
         with tab_log:
-            st.markdown("### Acceso a la Plataforma")
-            email_input = st.text_input("Correo Electrónico Repartidor", value="driver@courierai.com")
-            pass_input = st.text_input("Contraseña", value="demo123", type="password")
+            st.markdown("<h3 style='color:#F8FAFC; margin-top:15px; margin-bottom:20px; font-size:1.4rem;'>Acceso a la Plataforma</h3>", unsafe_allow_html=True)
+            email_input = st.text_input("Correo Electrónico", value="driver@courierai.com", key="log_email")
+            pass_input = st.text_input("Contraseña", value="demo123", type="password", key="log_pass")
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            if st.button("Iniciar Sesión como Repartidor", use_container_width=True, type="primary"):
+            if st.button("🚀 Iniciar Sesión como Repartidor", use_container_width=True, type="primary"):
                 perfil = validar_credenciales(email_input, pass_input)
                 if perfil:
                     st.session_state["usuario_autenticado"] = perfil
@@ -268,23 +286,24 @@ if not st.session_state["usuario_autenticado"]:
                     st.error("Credenciales inválidas. Verifica tu correo y contraseña.")
                     
         with tab_reg:
-            st.markdown("### Registro de Nuevo Conductor")
-            r_nombre = st.text_input("Nombre Completo")
-            r_email = st.text_input("Correo Electrónico Nuevo")
-            r_pass = st.text_input("Contraseña Nueva", type="password")
-            r_vehiculo = st.selectbox("Tipo de Vehículo", ["Moto", "Bici Eléctrica", "Auto"])
+            st.markdown("<h3 style='color:#F8FAFC; margin-top:15px; margin-bottom:20px; font-size:1.4rem;'>Registro de Nuevo Conductor</h3>", unsafe_allow_html=True)
+            r_nombre = st.text_input("Nombre Completo", key="reg_nombre")
+            r_email = st.text_input("Correo Electrónico Nuevo", key="reg_email")
+            r_pass = st.text_input("Contraseña Nueva", type="password", key="reg_pass")
+            r_vehiculo = st.selectbox("Tipo de Vehículo", ["Moto", "Bici Eléctrica", "Auto"], key="reg_veh")
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            if st.button("Crear Cuenta de Repartidor", use_container_width=True):
+            if st.button("✨ Crear Cuenta de Repartidor", use_container_width=True):
                 if r_nombre and r_email and r_pass:
                     if registrar_nuevo_repartidor(r_nombre, r_email, r_pass, r_vehiculo):
-                        st.success("¡Cuenta registrada con éxito! Ya puedes iniciar sesión en la pestaña izquierda.")
+                        st.success("¡Cuenta registrada con éxito! Ya puedes iniciar sesión.")
                     else:
                         st.error("El correo electrónico ya se encuentra registrado.")
                 else:
                     st.warning("Completa todos los campos obligatorios.")
                     
-        st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
+
 
 
 
