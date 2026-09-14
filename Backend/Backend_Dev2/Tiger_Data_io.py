@@ -325,3 +325,73 @@ if __name__ == "__main__":
         print(" ", entrada)
 
     print("\nDecisiones y estados sincronizados a Tiger Data (ambos agentes)")
+
+# ==========================================
+# METODOS EXPERTOS DE REPARTIDORES & TELEMETRIA
+# ==========================================
+
+def inicializar_tabla_repartidores():
+    """Crea las tablas de repartidores y telemetria en TimescaleDB si no existen."""
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS repartidores (
+                    id SERIAL PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    email VARCHAR(100) UNIQUE NOT NULL,
+                    password_hash VARCHAR(64) NOT NULL,
+                    vehiculo_tipo VARCHAR(20) DEFAULT 'Moto',
+                    rating NUMERIC(3,2) DEFAULT 4.90,
+                    saldo_acumulado DOUBLE PRECISION DEFAULT 0.0,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                );
+            """)
+            # Crear repartidor demo si no existe
+            from auth import hash_password
+            p_demo = hash_password("demo123")
+            cur.execute("""
+                INSERT INTO repartidores (nombre, email, password_hash, vehiculo_tipo, rating, saldo_acumulado)
+                VALUES (%s, %s, %s, %s, 4.95, 0.0)
+                ON CONFLICT (email) DO NOTHING;
+            """, ('Santiago Martinez (Driver #1)', 'driver@courierai.com', p_demo, 'Moto'))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"Aviso en inicialización de repartidores en DB: {e}")
+
+def registrar_nuevo_repartidor(nombre: str, email: str, password: str, vehiculo: str = 'Moto') -> bool:
+    """Registra un nuevo repartidor en TimescaleDB/PostgreSQL."""
+    from auth import hash_password
+    p_hash = hash_password(password)
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO repartidores (nombre, email, password_hash, vehiculo_tipo, rating, saldo_acumulado)
+                VALUES (%s, %s, %s, %s, 5.00, 0.0);
+            """, (nombre.strip(), email.strip().lower(), p_hash, vehiculo))
+            conn.commit()
+            return True
+    except Exception as e:
+        logger.error(f"Error registrando repartidor: {e}")
+        return False
+
+def registrar_telemetria_gps(repartidor_id: int, lat: float, lon: float, velocidad: float = 35.0):
+    """Registra punto de telemetría de serie temporal en la Hypertable de TimescaleDB."""
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS repartidor_telemetria (
+                    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    repartidor_id INT NOT NULL,
+                    latitud DOUBLE PRECISION NOT NULL,
+                    longitud DOUBLE PRECISION NOT NULL,
+                    velocidad_kmh DOUBLE PRECISION DEFAULT 35.0
+                );
+                INSERT INTO repartidor_telemetria (repartidor_id, latitud, longitud, velocidad_kmh)
+                VALUES (%s, %s, %s, %s);
+            """, (repartidor_id, lat, lon, velocidad))
+            conn.commit()
+    except Exception as e:
+        pass
