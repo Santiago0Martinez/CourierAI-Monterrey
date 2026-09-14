@@ -1,0 +1,4 @@
+version: 1.0
+spec_id: 8
+engine: OR-Tools CP-SAT
+routing_mode: dynamic
