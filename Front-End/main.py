@@ -225,6 +225,45 @@ st.markdown("""
     .t-smart { color: #10B981; font-weight: bold; }
     .t-base { color: #EF4444; font-weight: bold; }
     .t-info { color: #38BDF8; }
+
+    /* ANIMACIONES CSS FUTURISTAS 2026 */
+    @keyframes motito-drive {
+        0% { transform: translateX(-100px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateX(calc(100vw - 150px)); opacity: 0; }
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+        50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.9); transform: scale(1.05); }
+        100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+    }
+
+    @keyframes border-beam {
+        0% { border-color: rgba(99, 102, 241, 0.3); }
+        50% { border-color: rgba(56, 189, 248, 0.8); }
+        100% { border-color: rgba(99, 102, 241, 0.3); }
+    }
+
+    .scooter-banner {
+        position: relative;
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .scooter-anim {
+        position: absolute;
+        font-size: 2rem;
+        animation: motito-drive 8s linear infinite;
+    }
+
+    .pulse-badge {
+        animation: pulse-glow 2s infinite;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -268,7 +307,46 @@ if not st.session_state["usuario_autenticado"]:
                 padding: 35px;
                 box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.15);
             }
-        </style>
+        
+    /* ANIMACIONES CSS FUTURISTAS 2026 */
+    @keyframes motito-drive {
+        0% { transform: translateX(-100px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateX(calc(100vw - 150px)); opacity: 0; }
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+        50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.9); transform: scale(1.05); }
+        100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+    }
+
+    @keyframes border-beam {
+        0% { border-color: rgba(99, 102, 241, 0.3); }
+        50% { border-color: rgba(56, 189, 248, 0.8); }
+        100% { border-color: rgba(99, 102, 241, 0.3); }
+    }
+
+    .scooter-banner {
+        position: relative;
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .scooter-anim {
+        position: absolute;
+        font-size: 2rem;
+        animation: motito-drive 8s linear infinite;
+    }
+
+    .pulse-badge {
+        animation: pulse-glow 2s infinite;
+    }
+
+</style>
         """, unsafe_allow_html=True)
         
         tab_log, tab_reg = st.tabs(["🔐 Acceso Repartidor", "📝 Registrar Nuevo Conductor"])
@@ -638,6 +716,45 @@ st.markdown("""
         border-bottom-color: #6366F1 !important;
         color: #FFFFFF !important;
     }
+
+    /* ANIMACIONES CSS FUTURISTAS 2026 */
+    @keyframes motito-drive {
+        0% { transform: translateX(-100px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateX(calc(100vw - 150px)); opacity: 0; }
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+        50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.9); transform: scale(1.05); }
+        100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); transform: scale(1); }
+    }
+
+    @keyframes border-beam {
+        0% { border-color: rgba(99, 102, 241, 0.3); }
+        50% { border-color: rgba(56, 189, 248, 0.8); }
+        100% { border-color: rgba(99, 102, 241, 0.3); }
+    }
+
+    .scooter-banner {
+        position: relative;
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .scooter-anim {
+        position: absolute;
+        font-size: 2rem;
+        animation: motito-drive 8s linear infinite;
+    }
+
+    .pulse-badge {
+        animation: pulse-glow 2s infinite;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
