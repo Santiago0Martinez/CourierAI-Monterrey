@@ -1,0 +1,16 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "CourierAI Gemini Microservice",
+    "version": "1.0.0",
+    "description": "FastAPI service for LLM-based XAI explanation of Google OR-Tools routing decisions"
+  },
+  "paths": {
+    "/veredicto": {
+      "post": {
+        "summary": "Obtener veredicto de Gemini AI sobre la ruta elegida",
+        "responses": { "200": { "description": "Respuesta exitosa" } }
+      }
+    }
+  }
+}
