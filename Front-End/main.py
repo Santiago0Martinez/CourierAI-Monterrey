@@ -287,6 +287,33 @@ if not st.session_state["usuario_autenticado"]:
     st.stop()
 
 
+
+# Perfil del Repartidor Autenticado
+usuario = st.session_state.get("usuario_autenticado")
+if usuario:
+    st.sidebar.markdown(f"""
+    <div style='background-color: #0F172A; padding: 14px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+        <div style='color: #6366F1; font-weight: bold; font-size: 1.05rem;'>🛵 {usuario['nombre']}</div>
+        <div style='color: #94A3B8; font-size: 0.85rem;'>{usuario['email']}</div>
+        <div style='margin-top: 6px; font-size: 0.9rem;'>
+            <span style='color: #F59E0B;'>★ {usuario['rating']:.2f}</span> | 
+            <span style='color: #10B981; font-weight: bold;'>Vehículo: {usuario['vehiculo_tipo']}</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Registrar telemetría de posición actual en TimescaleDB
+    try:
+        registrar_telemetria_gps(usuario['id'], POSICION_BASE[0], POSICION_BASE[1], velocidad=38.5)
+    except:
+        pass
+
+    if st.sidebar.button("🚪 Cerrar Sesión", use_container_width=True):
+        st.session_state["usuario_autenticado"] = None
+        st.session_state["orden_activa_fijada"] = None
+        st.rerun()
+
+
 st.sidebar.title("Panel de Control")
 
 if st.sidebar.button("Generar Nueva Orden (Manual)", use_container_width=True, type="primary"):
