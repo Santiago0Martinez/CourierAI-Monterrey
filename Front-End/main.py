@@ -568,7 +568,7 @@ veredicto_gemini = st.session_state.get(
 # ==========================================
 st.markdown("""
 <div class='brand-container'>
-    <span class='hack-badge'>RETO INFOSYS — HACKMTY 2026</span>
+    <span style='color: #818CF8; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;'>RETO INFOSYS — HACKMTY 2026</span>
     <h1 class='main-header'>CourierAI</h1>
     <p class='sub-header'>Agente Inteligente de Optimización de Entregas y Decisión Multiobjetivo en Monterrey</p>
 </div>
