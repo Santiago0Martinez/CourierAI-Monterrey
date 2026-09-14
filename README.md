@@ -25,3 +25,40 @@ A diferencia de las aplicaciones tradicionales (DiDi Food, Rappi, UberEats) que 
 * **LLM & Explicabilidad:** Google Gemini AI Microservice.
 * **Frontend & Mapas:** Streamlit, Folium (Leaflet.js), Esri Dark Gray Canvas.
 
+
+
+---
+
+## ⚡ Guía de Instalación y Ejecución
+
+### 1. Requisitos Previos
+* Python 3.10 o superior.
+* Instancia activa de PostgreSQL / TimescaleDB.
+
+### 2. Instalación de Dependencias
+`ash
+git clone https://github.com/Santiago0Martinez/CourierAI-Monterrey.git
+cd CourierAI-Monterrey
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+pip install -r requirements.txt
+`
+
+### 3. Configuración de Variables de Entorno (.env)
+Crea un archivo .env en la raíz con la siguiente estructura:
+`env
+DATABASE_URL=postgresql://usuario:password@localhost:5432/courier_db
+GEMINI_API_KEY=tu_api_key_de_gemini
+`
+
+### 4. Ejecución del Sistema
+`ash
+# 1. Iniciar Microservicio de IA (FastAPI)
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+# 2. Iniciar Simulador de Entregas (Dev 1)
+python Backend/Backend_Dev1/main.py
+
+# 3. Iniciar Dashboard Interactivo (Frontend)
+python -m streamlit run Front-End/main.py
+`
