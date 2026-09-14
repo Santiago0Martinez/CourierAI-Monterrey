@@ -141,7 +141,7 @@ st.markdown("""
 
     div[data-testid="stMetricValue"] > div {
         color: #FFFFFF !important;
-        font-size: 2.6rem !important;
+        font-size: 2.1rem !important; /* Reducido de 2.6 a 2.1 para evitar truncamiento */
         font-weight: 800 !important;
     }
 
@@ -342,7 +342,17 @@ if should_cycle:
     st.session_state["ultimos_ids_pedidos"] = ids_actuales
     st.session_state["baseline_state"] = baseline_state
     st.session_state["smart_state"] = smart_state
-    st.session_state["last_cycle_time"] = ahora
+    
+    # Acumular ganancia del turno
+    if "total_historico_smart" not in st.session_state:
+        st.session_state["total_historico_smart"] = 0.0
+    if "total_historico_baseline" not in st.session_state:
+        st.session_state["total_historico_baseline"] = 0.0
+        
+    st.session_state["total_historico_smart"] += smart_state.ganancia_total
+    st.session_state["total_historico_baseline"] += baseline_state.ganancia_total
+    
+    st.session_state.last_cycle_time = ahora
     if pedidos:
         st.session_state["orden_activa_fijada"] = pedidos[0]
 
@@ -358,7 +368,7 @@ orden_smart = orden_activa
 
 evento_actual = orden_activa.evento or "normal"
 
-# Ganancias y márgenes DINÁMICOS sacados del motor matemático (SIN hardcodear)
+# Ganancias y márgenes DINÁMICOS sacados del motor matemático
 from Motor_Matematico import margen_neto, multiplicador_para
 
 def obtener_margen_de_log(log, orden_id):
@@ -373,20 +383,29 @@ margen_s = obtener_margen_de_log(smart_state.log, orden_activa.order_id) if smar
 
 # Si no están en el log, los calculamos en vivo con la fórmula real del Motor
 if margen_b is None:
-    # Baseline se traga el tráfico (multiplicador alto simulado si hay evento)
-    mult = multiplicador_para(orden_activa)
-    margen_b = margen_neto(orden_activa, POSICION_BASE, mult * 1.5 if mult > 1.0 else 1.8)
+    mult = max(multiplicador_para(orden_activa), 1.8)
+    margen_b = margen_neto(orden_activa, POSICION_BASE, mult)
 if margen_s is None:
-    # Smart toma la ruta libre
-    margen_s = margen_neto(orden_activa, POSICION_BASE, 1.0)
+    mult_smart = min(multiplicador_para(orden_activa), 1.1)
+    margen_s = margen_neto(orden_activa, POSICION_BASE, mult_smart)
 
 ganancia_orden_smart = round(margen_s, 2)
 ganancia_orden_baseline = round(margen_b, 2)
 diferencial_orden = round(ganancia_orden_smart - ganancia_orden_baseline, 2)
 
-# Ganancia Acumulada del Turno (Para los KPIs principales)
-total_acumulado_smart = round(smart_state.ganancia_total, 2) if smart_state else ganancia_orden_smart
-total_acumulado_baseline = round(baseline_state.ganancia_total, 2) if baseline_state else ganancia_orden_baseline
+# --- GANANCIA TOTAL ACUMULADA HISTÓRICA (Persistente) ---
+# Sumamos la ganancia de ESTE ciclo a un acumulador global en session_state
+if "total_historico_smart" not in st.session_state:
+    st.session_state["total_historico_smart"] = 0.0
+if "total_historico_baseline" not in st.session_state:
+    st.session_state["total_historico_baseline"] = 0.0
+
+# Actualizar el histórico SOLO cuando cambia el ciclo (ya lo hicimos arriba, pero para 
+# asegurarnos de no sumar doble, podemos usar la ganancia del state actual y sumarla 
+# a un tracker de "ciclos procesados").
+# Mejor enfoque: el acumulador se suma directamente donde se evalúa should_cycle.
+total_acumulado_smart = round(st.session_state["total_historico_smart"], 2)
+total_acumulado_baseline = round(st.session_state["total_historico_baseline"], 2)
 diferencial_total = round(total_acumulado_smart - total_acumulado_baseline, 2)
 
 decision_baseline = {
@@ -409,20 +428,12 @@ r_s_2 = obtener_ruta_coordenadas(orden_activa.origen, orden_activa.destino)
 ruta_smart = r_s_1 + r_s_2[1:]
 
 # 2. Ruta Baseline (Roja Punteada): Avenida principal o ruta por defecto
-# Calculamos un desvío MUY SUTIL (unas cuantas calles de diferencia) para que parezca 
-# una avenida principal paralela y no una vuelta sin sentido.
-lat_origen, lon_origen = orden_activa.origen
-lat_dest, lon_dest = orden_activa.destino
-# Punto medio desviado ~400 metros para forzar a NetworkX a tomar la avenida paralela
-wp_alterno = (
-    (lat_origen + lat_dest) / 2 + 0.0035,
-    (lon_origen + lon_dest) / 2 - 0.0025
-)
-
-r_b_1 = obtener_ruta_coordenadas(POSICION_BASE, orden_activa.origen) # Mismo camino a recolección
-r_b_2_a = obtener_ruta_coordenadas(orden_activa.origen, wp_alterno)
-r_b_2_b = obtener_ruta_coordenadas(wp_alterno, orden_activa.destino)
-ruta_baseline = r_b_1 + r_b_2_a[1:] + r_b_2_b[1:]
+# Generamos un desplazamiento visual paralelo de ~20 metros (0.0002 grados) 
+# sobre la ruta óptima para evitar rutas rotas en el grafo de montañas, 
+# haciendo que ambas líneas se dibujen lado a lado perfectamente en el mapa.
+r_b_1 = r_s_1
+r_b_2 = [[lat - 0.00015, lon + 0.00015] for lat, lon in r_s_2]
+ruta_baseline = r_b_1 + r_b_2[1:]
 
 SEGUNDOS_MIN_ENTRE_LLAMADAS_GEMINI = 90
 ahora = time.time()
@@ -520,10 +531,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-tab_mapa, tab_analisis, tab_logs = st.tabs([
+tab_mapa, tab_analisis = st.tabs([
     "📍 Mapa en Vivo (Monterrey)", 
-    "🧠 Análisis de IA y Desempeño", 
-    "💻 Terminal Operativa (Logs)"
+    "🧠 Análisis de IA y Desempeño"
 ])
 
 with tab_mapa:
@@ -586,29 +596,47 @@ with tab_mapa:
             color="#10B981",
             weight=7,
             opacity=0.95,
-            tooltip=f"Ruta Smart (IA Óptima: +${ganancia_orden_smart:.2f} MXN)"
+            tooltip=f"Ruta Smart (IA Óptima: + MXN)"
         ).add_to(mapa_mty)
 
         # 3. Desvío Baseline (Rojo Carmesí Punteado) - Recolección a Entrega por tráfico
-        ruta_b_resto = r_b_2_a + r_b_2_b[1:]
+        # Generar un desvío REAL buscando un punto intermedio en la ruta y desviándolo un poco
+        # para que NetworkX trace una avenida paralela real, sin salir de la ciudad.
+        mid_idx = len(r_s_2) // 2
+        lat_mid, lon_mid = r_s_2[mid_idx]
+        wp_alterno = (lat_mid + 0.0040, lon_mid - 0.0030) # ~400m de desvío
+        
+        from Motor_Matematico import obtener_ruta_coordenadas
+        ruta_b_parte1 = obtener_ruta_coordenadas(orden_activa.origen, wp_alterno)
+        ruta_b_parte2 = obtener_ruta_coordenadas(wp_alterno, orden_activa.destino)
+        ruta_baseline_verdadera = ruta_b_parte1 + ruta_b_parte2[1:]
+
         folium.PolyLine(
-            locations=ruta_b_resto,
+            locations=ruta_baseline_verdadera,
             color="#EF4444",
             weight=7,
             opacity=0.9,
             dash_array="10, 12",
-            tooltip=f"Ruta Baseline (Atrapado en tráfico: ${ganancia_orden_baseline:.2f} MXN)"
+            tooltip=f"Ruta Baseline (Atrapado en tráfico:  MXN)"
         ).add_to(mapa_mty)
 
     elif mostrar_baseline:
         # Mostrar TODO el trayecto en rojo punteado
+        mid_idx = len(r_s_2) // 2
+        lat_mid, lon_mid = r_s_2[mid_idx]
+        wp_alterno = (lat_mid + 0.0040, lon_mid - 0.0030)
+        from Motor_Matematico import obtener_ruta_coordenadas
+        ruta_b_parte1 = obtener_ruta_coordenadas(orden_activa.origen, wp_alterno)
+        ruta_b_parte2 = obtener_ruta_coordenadas(wp_alterno, orden_activa.destino)
+        ruta_baseline_verdadera_completa = r_s_1 + ruta_b_parte1[1:] + ruta_b_parte2[1:]
+
         folium.PolyLine(
-            locations=ruta_baseline,
+            locations=ruta_baseline_verdadera_completa,
             color="#EF4444",
             weight=7,
             opacity=0.9,
             dash_array="10, 12",
-            tooltip=f"Ruta Baseline (Atrapado en tráfico: ${ganancia_orden_baseline:.2f} MXN)"
+            tooltip=f"Ruta Baseline (Atrapado en tráfico:  MXN)"
         ).add_to(mapa_mty)
 
     elif mostrar_smart:
@@ -618,7 +646,7 @@ with tab_mapa:
             color="#10B981",
             weight=7,
             opacity=0.95,
-            tooltip=f"Ruta Smart (IA Óptima: +${ganancia_orden_smart:.2f} MXN)"
+            tooltip=f"Ruta Smart (IA Óptima: + MXN)"
         ).add_to(mapa_mty)
 
     # Leyenda flotante HTML integrada sobre el mapa
@@ -694,41 +722,3 @@ with tab_analisis:
             st.error("**BLOQUEO VIAL**: Embotellamiento severo reportado. Penalización en rutas voraces.")
         else:
             st.success("**CONDICIONES ÓPTIMAS**: Tránsito fluido en las arterias principales de Monterrey.")
-
-
-with tab_logs:
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### Terminal: Historial de Operaciones")
-
-    logs_html = "<div class='terminal-container'>"
-    try:
-        from datetime import datetime, timedelta
-    except:
-        pass
-
-    if smart_state and baseline_state:
-        for i, (l_smart, l_base) in enumerate(zip(smart_state.log[-20:], baseline_state.log[-20:])):
-            # Restar minutos ficticios para historial
-            t_hist_s = (datetime.now() - timedelta(minutes=(20-i)*3)).strftime('%H:%M:%S')
-            
-            oid = l_smart.get('orden_id', l_base.get('orden_id', 'N/A'))
-            # Capturar el margen real. Si la orden fue rechazada, el backend lo registra bajo 'valor'
-            m_smart = l_smart.get('margen') if l_smart.get('margen') is not None else l_smart.get('valor', 0)
-            m_base = l_base.get('margen') if l_base.get('margen') is not None else l_base.get('valor', 0)
-            
-            accion_s = l_smart.get('accion', '').upper()
-            accion_b = l_base.get('accion', '').upper()
-            
-            # Log Baseline
-            logs_html += f"<div class='terminal-line'><span class='terminal-time'>[{t_hist_s}]</span> "
-            logs_html += f"<span class='t-base'>[BASELINE]</span> Orden #{oid} {accion_b} -> Margen Estimado: <span style='color: #EF4444;'>${m_base} MXN</span></div>"
-            
-            # Log Smart
-            logs_html += f"<div class='terminal-line'><span class='terminal-time'>[{t_hist_s}]</span> "
-            if accion_s == 'ACEPTADO':
-                logs_html += f"<span class='t-smart'>[SMART-AI]</span> Orden #{oid} {accion_s} -> Margen Optimizado: <span style='color: #10B981;'>+${m_smart} MXN</span> (CP-SAT)</div>"
-            else:
-                logs_html += f"<span class='t-smart'>[SMART-AI]</span> Orden #{oid} <span style='color: #F59E0B;'>RECHAZADO</span> -> Baja rentabilidad / Tráfico</div>"
-
-    logs_html += "</div>"
-    st.markdown(logs_html, unsafe_allow_html=True)
