@@ -264,6 +264,36 @@ st.markdown("""
         animation: pulse-glow 2s infinite;
     }
 
+
+    /* Pestañas Ultra Vibrantes Neón 2026 */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 60px;
+        padding: 12px 24px;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px 14px 0 0;
+        color: #94A3B8;
+        font-size: 1.15rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #F8FAFC !important;
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
+        border-bottom: 3px solid #6366F1 !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3) !important;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -719,6 +749,36 @@ st.markdown("""
 
     .pulse-badge {
         animation: pulse-glow 2s infinite;
+    }
+
+
+    /* Pestañas Ultra Vibrantes Neón 2026 */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 60px;
+        padding: 12px 24px;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px 14px 0 0;
+        color: #94A3B8;
+        font-size: 1.15rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #F8FAFC !important;
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
+        border-bottom: 3px solid #6366F1 !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3) !important;
     }
 
 </style>
