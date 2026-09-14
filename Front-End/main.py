@@ -1,3 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'Backend', 'Backend_Dev2'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'Backend', 'Backend_Dev1'))
+from auth import validar_credenciales, hash_password
+from Tiger_Data_io import inicializar_tabla_repartidores, registrar_nuevo_repartidor, registrar_telemetria_gps
+inicializar_tabla_repartidores()
 import streamlit as st
 import folium
 from folium import plugins
@@ -226,6 +233,60 @@ def obtener_grafo():
 G = obtener_grafo()
 
 # Sidebar: Panel de Control e Interactividad
+
+# ==========================================
+# MODULO DE AUTENTICACION DE REPARTIDOR (DRIVER APP)
+# ==========================================
+if "usuario_autenticado" not in st.session_state:
+    st.session_state["usuario_autenticado"] = None
+
+if not st.session_state["usuario_autenticado"]:
+    st.markdown("""
+    <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+        <h1 style='color: #6366F1; font-size: 2.8rem; font-weight: 800;'>🛵 CourierAI Driver App</h1>
+        <p style='font-size: 1.2rem; color: #94A3B8;'>Plataforma Inteligente de Evaluación de Ofertas para Repartidores</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_login_space, col_login_box, col_login_space2 = st.columns([1, 2, 1])
+    with col_login_box:
+        st.markdown("<div style='background-color: #0F172A; padding: 30px; border-radius: 18px; border: 1px solid #1E293B; box-shadow: 0 20px 40px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
+        tab_log, tab_reg = st.tabs(["🔐 Iniciar Sesión", "📝 Registrar Repartidor"])
+        
+        with tab_log:
+            st.markdown("### Acceso a la Plataforma")
+            email_input = st.text_input("Correo Electrónico Repartidor", value="driver@courierai.com")
+            pass_input = st.text_input("Contraseña", value="demo123", type="password")
+            
+            if st.button("Iniciar Sesión como Repartidor", use_container_width=True, type="primary"):
+                perfil = validar_credenciales(email_input, pass_input)
+                if perfil:
+                    st.session_state["usuario_autenticado"] = perfil
+                    st.success(f"¡Bienvenido de nuevo, {perfil['nombre']}!")
+                    st.rerun()
+                else:
+                    st.error("Credenciales inválidas. Verifica tu correo y contraseña.")
+                    
+        with tab_reg:
+            st.markdown("### Registro de Nuevo Conductor")
+            r_nombre = st.text_input("Nombre Completo")
+            r_email = st.text_input("Correo Electrónico Nuevo")
+            r_pass = st.text_input("Contraseña Nueva", type="password")
+            r_vehiculo = st.selectbox("Tipo de Vehículo", ["Moto", "Bici Eléctrica", "Auto"])
+            
+            if st.button("Crear Cuenta de Repartidor", use_container_width=True):
+                if r_nombre and r_email and r_pass:
+                    if registrar_nuevo_repartidor(r_nombre, r_email, r_pass, r_vehiculo):
+                        st.success("¡Cuenta registrada con éxito! Ya puedes iniciar sesión en la pestaña izquierda.")
+                    else:
+                        st.error("El correo electrónico ya se encuentra registrado.")
+                else:
+                    st.warning("Completa todos los campos obligatorios.")
+                    
+        st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
+
+
 st.sidebar.title("Panel de Control")
 
 if st.sidebar.button("Generar Nueva Orden (Manual)", use_container_width=True, type="primary"):
