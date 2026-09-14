@@ -1,27 +1,27 @@
-﻿import hashlib
+import hashlib
 import os
 import logging
 
 logger = logging.getLogger(__name__)
 
 def hash_password(password: str) -> str:
-    \"\"\"Genera un hash SHA-256 seguro para la contraseña del repartidor.\"\"\"
+    """Genera un hash SHA-256 seguro para la contraseña del repartidor."""
     salt = "courier_ai_monterrey_salt_2026"
     return hashlib.sha256((password + salt).encode('utf-8')).hexdigest()
 
 def validar_credenciales(email: str, password: str, conn=None) -> dict:
-    \"\"\"Valida el login del repartidor en TimescaleDB y retorna su perfil si es valido.\"\"\"
+    """Valida el login del repartidor en TimescaleDB y retorna su perfil si es valido."""
     from Tiger_Data_io import get_connection
     p_hash = hash_password(password)
     
     try:
         with get_connection() as c:
             cur = c.cursor()
-            cur.execute(\"\"\"
+            cur.execute("""
                 SELECT id, nombre, email, vehiculo_tipo, rating, saldo_acumulado 
                 FROM repartidores 
                 WHERE email = %s AND password_hash = %s;
-            \"\"\", (email.strip().lower(), p_hash))
+            """, (email.strip().lower(), p_hash))
             row = cur.fetchone()
             if row:
                 return {
