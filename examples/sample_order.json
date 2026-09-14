@@ -1,0 +1,8 @@
+{
+  "order_id": "2434",
+  "origen": [25.6066, -100.2534],
+  "destino": [25.7352, -100.3909],
+  "tarifa_base": 180.00,
+  "tiempo_limite": 1800,
+  "evento": "normal"
+}
