@@ -141,15 +141,18 @@ st.markdown("""
     }
     
     div[data-testid="stMetricLabel"] > label {
-        color: #CBD5E1 !important;
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
+        color: #94A3B8 !important;
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     div[data-testid="stMetricValue"] > div {
         color: #FFFFFF !important;
-        font-size: 2.1rem !important; /* Reducido de 2.6 a 2.1 para evitar truncamiento */
+        font-size: 2.55rem !important;
         font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     div[data-testid="stMetricDelta"] {
